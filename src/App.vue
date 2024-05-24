@@ -1,8 +1,9 @@
 <script setup></script>
 
 <template>
-  <div>
-    <button class="btn btn-primary">test</button>
+  <nav></nav>
+  <div class="container">
+    <RouterView />
   </div>
 </template>
 
