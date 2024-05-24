@@ -4,6 +4,8 @@ import { holidayService } from '@/services/holidayServices';
 import { returnCodeEnum } from '@/utils/enums';
 
 const holidays = ref([]);
+const selectedDate = ref('');
+
 const getHoliday = async () => {
   const res = await holidayService.get();
   //解構賦值，參數命名須與回傳的陣列名稱一樣
@@ -11,15 +13,31 @@ const getHoliday = async () => {
   returnData.forEach((x) => (x.isHoliday = x.isHoliday === true ? '是' : '否'));
   holidays.value = [...returnData];
 };
+
+const getHolidayByDate = async (date) => {
+  const res = await holidayService.getByDate(date);
+  const { returnData } = await res.data;
+  if (!returnData) {
+    alert(`${date} 為平日!!!`);
+    //selectedDate.value = '';
+    return;
+  }
+  returnData.isHoliday = returnData.isHoliday === true ? '是' : '否';
+  holidays.value = returnData;
+};
 onMounted(async () => {
   await getHoliday();
 });
 </script>
 
 <template>
-  <div class="d-flex">
+  <div class="d-flex justify-content-between">
     <h3>假日驗證</h3>
-    <input type="date" />
+    <div class="d-flex align-items-center">
+      <span class="w-25">選取日期: </span>&ensp;
+      <input type="date" class="form-control w-50" v-model="selectedDate" />&ensp;
+      <button class="btn btn-primary w-25" @click="getHolidayByDate(selectedDate)">查詢</button>
+    </div>
   </div>
 
   <hr />
@@ -33,13 +51,22 @@ onMounted(async () => {
         <th scope="col" class="w-50">描述</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody v-if="Array.isArray(holidays)">
       <tr v-for="item in holidays" :key="item.id">
         <th scope="col">{{ item.date }}</th>
         <th scope="col">{{ item.name }}</th>
         <th scope="col">{{ item.isHoliday }}</th>
         <th scope="col">{{ item.holidayCategory }}</th>
         <th scope="col">{{ item.description }}</th>
+      </tr>
+    </tbody>
+    <tbody v-else>
+      <tr>
+        <th scope="col">{{ holidays.date }}</th>
+        <th scope="col">{{ holidays.name }}</th>
+        <th scope="col">{{ holidays.isHoliday }}</th>
+        <th scope="col">{{ holidays.holidayCategory }}</th>
+        <th scope="col">{{ holidays.description }}</th>
       </tr>
     </tbody>
   </table>
