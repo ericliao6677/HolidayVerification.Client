@@ -1,10 +1,13 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { holidayService } from '@/services/holidayServices';
-import { returnCodeEnum } from '@/utils/enums';
+import PaginationItem from '../components/PaginationItem.vue';
+//import { returnCodeEnum } from '@/utils/enums';
 
 const holidays = ref([]);
 const selectedDate = ref('');
+const pageSize = ref(10);
+const currentPage = ref(1)
 
 const getHoliday = async () => {
   const res = await holidayService.get();
@@ -25,6 +28,25 @@ const getHolidayByDate = async (date) => {
   returnData.isHoliday = returnData.isHoliday === true ? '是' : '否';
   holidays.value = returnData;
 };
+
+
+const changePageParent = (page) => {
+  console.log('p:' + page);
+  currentPage.value = page
+}
+const holidaysCount = computed(()=>{
+  return holidays.value.length
+})
+const holidaysFilterBySliced = computed(() => {
+  const skipCount = (currentPage.value - 1) * pageSize.value;
+  const data = holidays.value.slice(skipCount, skipCount + pageSize.value);
+  return data;
+});
+
+
+
+
+
 onMounted(async () => {
   await getHoliday();
 });
@@ -32,7 +54,7 @@ onMounted(async () => {
 
 <template>
   <div class="d-flex justify-content-between">
-    <h3>假日驗證</h3>
+    <div></div>
     <div class="d-flex align-items-center">
       <span class="w-25">選取日期: </span>&ensp;
       <input type="date" class="form-control w-50" v-model="selectedDate" />&ensp;
@@ -52,7 +74,7 @@ onMounted(async () => {
       </tr>
     </thead>
     <tbody v-if="Array.isArray(holidays)">
-      <tr v-for="item in holidays" :key="item.id">
+      <tr v-for="item in holidaysFilterBySliced" :key="item.id">
         <th scope="col">{{ item.date }}</th>
         <th scope="col">{{ item.name }}</th>
         <th scope="col">{{ item.isHoliday }}</th>
@@ -70,4 +92,7 @@ onMounted(async () => {
       </tr>
     </tbody>
   </table>
+
+  <PaginationItem :totalData="holidaysCount" :pageSize="pageSize" @changePage="changePageParent">
+  </PaginationItem>
 </template>
