@@ -1,6 +1,9 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import HomeView from './HomeView.vue'
 const currentTab = ref('清單');
+
+
 
 onMounted(() => {});
 </script>
@@ -46,6 +49,7 @@ onMounted(() => {});
       <li class="nav-item">
         <a
           class="nav-link"
+        
           :class="{
             active: currentTab === '上傳檔案',
             'text-light': currentTab === '上傳檔案',
@@ -62,7 +66,9 @@ onMounted(() => {});
       </li>
     </ul>
     <hr />
-    <div></div>
+    <div>
+      <HomeView></HomeView>
+    </div>
   </div>
 </template>
 <style></style>
