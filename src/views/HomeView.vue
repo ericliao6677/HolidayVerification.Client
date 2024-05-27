@@ -11,7 +11,9 @@ const pageSize = ref(10);
 const currentPage = ref(1);
 const updateHolidayInfo = ref({});
 const currentHolidayData = ref({});
+const modal = ref(null);
 
+//呼叫get api
 const getHoliday = async () => {
   const res = await holidayService.get();
   //解構賦值，參數命名須與回傳的陣列名稱一樣
@@ -21,13 +23,13 @@ const getHoliday = async () => {
 };
 
 const changePageParent = (page) => {
-  currentPage.value = page
-}
+  currentPage.value = page;
+};
 
 //總比數
 const holidaysCount = computed(() => {
-  return holidays.value.length
-})
+  return holidays.value.length;
+});
 
 //分頁
 const holidaysFilterBySliced = computed(() => {
@@ -36,18 +38,29 @@ const holidaysFilterBySliced = computed(() => {
   return data;
 });
 
-
+//編輯按鈕觸發
 const updateBtnClicked = (holiday) => {
-  currentHolidayData.value = JSON.parse(JSON.stringify(holiday));
-}
+  let selectedHoliday = { ...holiday };
+  currentHolidayData.value = selectedHoliday;
+  modal.value.myModalShow();
+};
 
-const saveChange = (holidayInfo)=>{
-  console.log(holidayInfo)
-}
+//modal組件中觸法儲存事件
+const updateSaveChange = async (holidayInfo) => {
+  let holidayInfoFromChild = { ...holidayInfo };
+  console.log(holidayInfoFromChild);
+  const result = await updateToDb(holidayInfoFromChild);
+  modal.value.myModalHide();
+  alert(result);
+  await getHoliday();
+};
 
-const updateToDb = async (data)=>{
-  const res = await holidayService.update(data);
-}
+//呼叫update api
+const updateToDb = async (payload) => {
+  const res = await holidayService.update(payload);
+  const { returnMessage } = await res.data;
+  return returnMessage;
+};
 
 onMounted(async () => {
   await getHoliday();
@@ -55,8 +68,6 @@ onMounted(async () => {
 </script>
 
 <template>
-
-
   <hr />
   <table class="table table-hover">
     <thead class="table-light">
@@ -78,11 +89,10 @@ onMounted(async () => {
         <th scope="col">{{ item.description }}</th>
         <th scope="col">
           <div class="d-flex">
-            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#update"
-              @click="updateBtnClicked(item)">編輯
-            </button>&ensp;
-            <button class="btn btn-danger btn-sm">刪除
-            </button>
+            <button type="button" class="btn btn-primary btn-sm" @click="updateBtnClicked(item)">
+              編輯</button
+            >&ensp;
+            <button class="btn btn-danger btn-sm">刪除</button>
           </div>
         </th>
       </tr>
@@ -93,6 +103,11 @@ onMounted(async () => {
   </PaginationItem>
 
   <!--彈出視窗-->
-  <ModalComponent modalId="update" title="編輯資料" :holidayInfo="currentHolidayData" @updatedData="saveChange"></ModalComponent>
-
+  <ModalComponent
+    ref="modal"
+    modalId="update"
+    title="編輯資料"
+    :holidayInfo="currentHolidayData"
+    @updatedData="updateSaveChange"
+  ></ModalComponent>
 </template>
