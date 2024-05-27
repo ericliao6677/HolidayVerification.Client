@@ -1,11 +1,10 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import HomeView from './HomeView.vue'
+import SearchView from './SearchView.vue'
 const currentTab = ref('清單');
 
 
-
-onMounted(() => {});
 </script>
 <template>
   <div>
@@ -67,7 +66,8 @@ onMounted(() => {});
     </ul>
     <hr />
     <div>
-      <HomeView></HomeView>
+      <HomeView v-if="currentTab === '清單'"></HomeView>
+      <SearchView v-if="currentTab === '查詢'"></SearchView>
     </div>
   </div>
 </template>
