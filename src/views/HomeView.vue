@@ -2,12 +2,15 @@
 import { onMounted, ref, computed } from 'vue';
 import { holidayService } from '@/services/holidayServices';
 import PaginationItem from '../components/PaginationItem.vue';
+import ModalComponent from '../components/ModalComponent.vue';
 //import { returnCodeEnum } from '@/utils/enums';
 
 const holidays = ref([]);
-const selectedDate = ref('');
+
 const pageSize = ref(10);
-const currentPage = ref(1)
+const currentPage = ref(1);
+const updateHolidayInfo = ref({});
+const currentHolidayData = ref({});
 
 const getHoliday = async () => {
   const res = await holidayService.get();
@@ -17,26 +20,16 @@ const getHoliday = async () => {
   holidays.value = [...returnData];
 };
 
-const getHolidayByDate = async (date) => {
-  const res = await holidayService.getByDate(date);
-  const { returnData } = await res.data;
-  if (!returnData) {
-    alert(`${date} 為平日!!!`);
-    //selectedDate.value = '';
-    return;
-  }
-  returnData.isHoliday = returnData.isHoliday === true ? '是' : '否';
-  holidays.value = returnData;
-};
-
-
 const changePageParent = (page) => {
-  console.log('p:' + page);
   currentPage.value = page
 }
-const holidaysCount = computed(()=>{
+
+//總比數
+const holidaysCount = computed(() => {
   return holidays.value.length
 })
+
+//分頁
 const holidaysFilterBySliced = computed(() => {
   const skipCount = (currentPage.value - 1) * pageSize.value;
   const data = holidays.value.slice(skipCount, skipCount + pageSize.value);
@@ -44,8 +37,17 @@ const holidaysFilterBySliced = computed(() => {
 });
 
 
+const updateBtnClicked = (holiday) => {
+  currentHolidayData.value = JSON.parse(JSON.stringify(holiday));
+}
 
+const saveChange = (holidayInfo)=>{
+  console.log(holidayInfo)
+}
 
+const updateToDb = async (data)=>{
+  const res = await holidayService.update(data);
+}
 
 onMounted(async () => {
   await getHoliday();
@@ -53,14 +55,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="d-flex justify-content-between">
-    <div></div>
-    <div class="d-flex align-items-center">
-      <span class="w-25">選取日期: </span>&ensp;
-      <input type="date" class="form-control w-50" v-model="selectedDate" />&ensp;
-      <button class="btn btn-primary w-25" @click="getHolidayByDate(selectedDate)">查詢</button>
-    </div>
-  </div>
+
 
   <hr />
   <table class="table table-hover">
@@ -71,28 +66,33 @@ onMounted(async () => {
         <th scope="col" class="w-auto">是否為假日</th>
         <th scope="col" class="w-auto">種類</th>
         <th scope="col" class="w-50">描述</th>
+        <th scope="col" class="w-auto"></th>
       </tr>
     </thead>
-    <tbody v-if="Array.isArray(holidays)">
+    <tbody>
       <tr v-for="item in holidaysFilterBySliced" :key="item.id">
         <th scope="col">{{ item.date }}</th>
         <th scope="col">{{ item.name }}</th>
         <th scope="col">{{ item.isHoliday }}</th>
         <th scope="col">{{ item.holidayCategory }}</th>
         <th scope="col">{{ item.description }}</th>
-      </tr>
-    </tbody>
-    <tbody v-else>
-      <tr>
-        <th scope="col">{{ holidays.date }}</th>
-        <th scope="col">{{ holidays.name }}</th>
-        <th scope="col">{{ holidays.isHoliday }}</th>
-        <th scope="col">{{ holidays.holidayCategory }}</th>
-        <th scope="col">{{ holidays.description }}</th>
+        <th scope="col">
+          <div class="d-flex">
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#update"
+              @click="updateBtnClicked(item)">編輯
+            </button>&ensp;
+            <button class="btn btn-danger btn-sm">刪除
+            </button>
+          </div>
+        </th>
       </tr>
     </tbody>
   </table>
 
   <PaginationItem :totalData="holidaysCount" :pageSize="pageSize" @changePage="changePageParent">
   </PaginationItem>
+
+  <!--彈出視窗-->
+  <ModalComponent modalId="update" title="編輯資料" :holidayInfo="currentHolidayData" @updatedData="saveChange"></ModalComponent>
+
 </template>
