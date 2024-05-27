@@ -51,7 +51,6 @@ const visiblePages = computed(() => {
 });
 
 const changePage = (page) => {
-  console.log('c: ' + page);
   if (page > 0 && page <= totalPages.value) {
     emit('changePage', page);
   }
