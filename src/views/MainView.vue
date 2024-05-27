@@ -1,10 +1,8 @@
 <script setup>
 import { ref } from 'vue';
-import HomeView from './HomeView.vue'
-import SearchView from './SearchView.vue'
+import HomeView from './HomeView.vue';
+import SearchView from './SearchView.vue';
 const currentTab = ref('清單');
-
-
 </script>
 <template>
   <div>
@@ -48,7 +46,6 @@ const currentTab = ref('清單');
       <li class="nav-item">
         <a
           class="nav-link"
-        
           :class="{
             active: currentTab === '上傳檔案',
             'text-light': currentTab === '上傳檔案',
