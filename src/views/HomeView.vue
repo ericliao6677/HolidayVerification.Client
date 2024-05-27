@@ -49,7 +49,9 @@ const updateBtnClicked = (holiday) => {
 const updateSaveChange = async (holidayInfo) => {
   let holidayInfoFromChild = { ...holidayInfo };
   console.log(holidayInfoFromChild);
+  //呼叫update api
   const result = await updateToDb(holidayInfoFromChild);
+  //關閉modal
   modal.value.myModalHide();
   alert(result);
   await getHoliday();
