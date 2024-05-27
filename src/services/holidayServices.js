@@ -6,5 +6,11 @@ export const holidayService = {
   insert: (payload) => holidayInstance.post('/api/Holiday/Insert', payload),
   update: (payload) => holidayInstance.put('/api/Holiday/Put', payload),
   delete: (id) => holidayInstance.delete(`/api/Holiday/Delete/${id}`),
-  uploadFile: (binaryData) => holidayInstance.post('api/Holiday/InsertDataFromCsvFile', binaryData)
+  uploadFile: (binaryData) =>
+    holidayInstance.post('/api/Holiday/InsertDataFromCsvFile', binaryData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }),
+  getUploadFileData: () => holidayInstance.get('/api/Holiday/GetUploadFileData')
 };

@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import HomeView from './HomeView.vue';
 import SearchView from './SearchView.vue';
+import UploadView from './UploadView.vue';
+
 const currentTab = ref('清單');
 </script>
 <template>
@@ -65,6 +67,7 @@ const currentTab = ref('清單');
     <div>
       <HomeView v-if="currentTab === '清單'"></HomeView>
       <SearchView v-if="currentTab === '查詢'"></SearchView>
+      <UploadView v-if="currentTab === '上傳檔案'"></UploadView>
     </div>
   </div>
 </template>
